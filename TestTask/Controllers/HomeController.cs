@@ -4,40 +4,101 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using TestTask.Models;
+using TestTask.Repositories.Interfaces;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace TestTask.Controllers
 {
+    /// <summary>
+    /// 
+    ///«Здравствуйте, Дмитрий Васильевич,
+    ///
+    ///Для первоначальной оценки компетентности Прошу Вас выполнить тестовое задание:
+    ///Сделать web api для взаимодействия с базой данных, в которой хранятся данные о видеоиграх, реализовать CRUD операции с ней, а также метод для получения списка игр определённого жанра.
+    ///Информация о игре: название, студия разработчик, несколько жанров, которым соответствует игра.
+    ///Используя.NET core, entity framework.
+    ///Действуя согласно SOLID MVC MVVM.
+    ///Сделать минимум 3 слоя абстракций, а контроллеры "тонкими".
+    /// </summary>
     public class HomeController : Controller
     {
+        IGameRepository repository;
+        public HomeController(IGameRepository repo) => repository = repo;
+
         public IActionResult Index()
         {
-            return View();
+            return View(
+                repository
+                .Games
+                .Include(s => s.Studio)
+                );
         }
 
-        public IActionResult About()
+        [HttpGet]
+        public ViewResult Create()
         {
-            ViewData["Message"] = "Your application description page.";
-
-            return View();
+            var viewModel = new Models.ViewModels.GameStudioViewModel(repository);
+            return View(viewModel);
         }
 
-        public IActionResult Contact()
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Create(Game game, int[] GenreIds)
         {
-            ViewData["Message"] = "Your contact page.";
-
-            return View();
+            if (ModelState.IsValid)
+            {
+                repository.SaveChanges(game);
+                foreach (int gId in GenreIds)
+                {
+                    repository.GenreAssign(game.Id, gId);
+                }
+                TempData["Success"] = "Row was added!";
+                return RedirectToAction("Index");
+            }
+            else
+            {
+                ///Прописать корректную передачу при ошибке валиации
+                var viewModel = new Models.ViewModels.GameStudioViewModel(repository);
+                return View(viewModel);
+            }
         }
 
-        public IActionResult Privacy()
+        [HttpGet]
+        public ViewResult Edit(int Id)
         {
-            return View();
+            var viewModel = new Models.ViewModels.GameStudioViewModel(Id, repository);
+            
+            return View(viewModel);
         }
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
+        [HttpPost]
+        public IActionResult Edit(Game game, int[] GenreIds)
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            if (ModelState.IsValid)
+            {
+                repository.SaveChanges(game);
+                foreach (int gId in GenreIds)
+                {
+                    repository.GenreAssign(game.Id, gId);
+                }
+                TempData["Success"] = "Game was edited!";
+                return RedirectToAction("Index");
+            }
+            else
+            {
+                ///Прописать корректную передачу при ошибке валиации
+                var viewModel = new Models.ViewModels.GameStudioViewModel(game.Id,repository);
+                return View(viewModel);
+            }
+        }
+
+        public IActionResult Delete(int id)
+        {
+            repository.Remove(id);
+            TempData["Success"] = "Игра успешно удалена";
+            return RedirectToAction("Index");
         }
     }
 }
