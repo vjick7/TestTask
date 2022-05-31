@@ -50,10 +50,7 @@ namespace TestTask.Controllers
             if (ModelState.IsValid)
             {
                 repository.SaveChanges(game);
-                foreach (int gId in GenreIds)
-                {
-                    repository.GenreAssign(game.Id, gId);
-                }
+                repository.GenreAssign(game.Id, GenreIds);
                 TempData["Success"] = "Row was added!";
                 return RedirectToAction("Index");
             }
@@ -79,17 +76,14 @@ namespace TestTask.Controllers
             if (ModelState.IsValid)
             {
                 repository.SaveChanges(game);
-                foreach (int gId in GenreIds)
-                {
-                    repository.GenreAssign(game.Id, gId);
-                }
-                TempData["Success"] = "Game was edited!";
+                repository.GenreAssign(game.Id, GenreIds);
+                TempData["Success"] = "Игра обновлена";
                 return RedirectToAction("Index");
             }
             else
             {
                 ///Прописать корректную передачу при ошибке валиации
-                var viewModel = new Models.ViewModels.GameStudioViewModel(game.Id,repository);
+                var viewModel = new Models.ViewModels.GameStudioViewModel(game.Id, repository);
                 return View(viewModel);
             }
         }

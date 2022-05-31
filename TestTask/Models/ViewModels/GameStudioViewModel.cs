@@ -12,20 +12,37 @@ namespace TestTask.Models.ViewModels
     {
         public Game Game { get; set; }
         public SelectList StudioSelectList { get; set; }
-        public IQueryable<CheckBoxModel> Genres { get; set; }
+        public List<CheckBoxModel> CheckBoxList { get; set; }
 
         public GameStudioViewModel(IGameRepository repository)
         {
             Game = new Game();
             StudioSelectList = new SelectList(repository.Studios, "Id", "Title");
-            Genres = repository.Genres.Select(x => new CheckBoxModel { Id = x.Id, Name = x.Title, Checked = false });
+            CheckBoxList = repository.Genres.Select(x => new CheckBoxModel { Id = x.Id, Name = x.Title, Checked = false }).ToList();
         }
 
         public GameStudioViewModel(int gameID, IGameRepository repository)
         {
             Game = repository.Games.FirstOrDefault(x => x.Id == gameID);
             StudioSelectList = new SelectList(repository.Studios, "Id", "Title",Game.StudioID);
-            Genres = repository
+            //var a1 = repository
+            //        .Genres
+            //        .Where(g => g.Games.Where(p => p.GameId == gameID && p.GenreId == 2).Any())
+            //        .ToList();
+
+            //            var a2 = repository
+            //                    .Genres
+            //                    .Where(g => g.Games.All(tag => tag.GameId == gameID && tag.GenreId == 2)).ToList();
+            //            var a3 = repository
+            //                    .Genres
+            //                    .Where(g => g.Games.All(tag => tag.GameId == gameID && tag.GenreId == 3)).ToList();
+            //var a4 = repository
+            //        .Genres
+            //        .FromSql(new RawSqlString($@"select Genres.* from GameGenres
+            //inner join Genres on GameGenres.GenreId = Genres.Id
+            //where gameId = {gameID} and GenreId = 2"))
+                    //.ToList();
+            CheckBoxList = repository
                 .Genres
                 .Select(x => new CheckBoxModel
                 {
@@ -33,10 +50,10 @@ namespace TestTask.Models.ViewModels
                     Name = x.Title,
                     Checked = repository
                     .Genres
-                    .Where(g => g.Games.All(tag =>tag.GameId == gameID && tag.GenreId == x.Id))
+                    .Where(g => g.Games.Where(p => p.GameId == gameID && p.GenreId == x.Id).Any())
                     .Count() == 0 ? false:true
+                }).ToList();
 
-                });
         }
 
         private void SetChecked(CheckBoxModel check, int[] ids)

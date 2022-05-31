@@ -26,7 +26,7 @@
             </div>
             <div class="form-group">
                 <ul style="list-style-type:none;">
-                    @foreach(var genre in Model.Genres)
+                    @foreach(var genre in Model.CheckBoxList)
                     {
                         <li><input type ="checkbox" name="GenreIds" value="@genre.Id" />@genre.Name</li>
                     }

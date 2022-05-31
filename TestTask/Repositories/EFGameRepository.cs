@@ -51,19 +51,38 @@ namespace TestTask.Repositories
                     throw new KeyNotFoundException("EF: Game not found");
                 dbEntity.Title = game.Title;
                 dbEntity.StudioID = game.StudioID;
-                dbEntity.Studio = context.Studios.Where(x => x.Id == game.StudioID).FirstOrDefault();
+                dbEntity.Studio = context.Studios.Where(studio => studio.Id == game.StudioID).FirstOrDefault();
                 context.SaveChanges();
             }
         }
 
+        
 
-        void  IGameRepository.GenreAssign(int gameId, int genreId)
+
+        void  IGameRepository.GenreAssign(int gameId, int[] genreIds)
         {
-            if (!context.GameGenres.Where(p => p.GameId == gameId && p.GenreId == genreId).Any())
+            int [] existGenreIds = context.GameGenres.Where(gg => gg.GameId == gameId).Select(s => s.GenreId).ToArray();
+            
+            foreach (int genreId in genreIds)
             {
-                context.GameGenres.Add(new GameGenres { GameId = gameId, GenreId = genreId });
-                context.SaveChanges();
+                if (!existGenreIds.Contains(genreId))
+                {
+                    context.GameGenres.Add(new GameGenres { GameId = gameId, GenreId = genreId });
+                    
+                }
             }
+            foreach(int existGenre in existGenreIds)
+            {
+                if(!genreIds.Contains(existGenre))
+                {
+                    context
+                        .GameGenres
+                        .Remove(context
+                                .GameGenres
+                                .FirstOrDefault(gg => gg.GameId == gameId && gg.GenreId == existGenre));
+                }
+            }
+            context.SaveChanges();
         }
     }
 }

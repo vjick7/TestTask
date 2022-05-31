@@ -13,7 +13,7 @@ namespace TestTask.Repositories.Interfaces
         IQueryable<Studio> Studios { get; }
 
         void SaveChanges(Game game);
-        void GenreAssign(int gameId, int genreId);
+        void GenreAssign(int gameId, int[] genreId);
         void Remove(int Id);
         //string GenresString(int gameId);
     }
