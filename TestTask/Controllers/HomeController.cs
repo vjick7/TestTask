@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using TestTask.Models;
 using TestTask.Repositories.Interfaces;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using TestTask.Models.ViewModels;
 
 namespace TestTask.Controllers
 {
@@ -27,19 +28,16 @@ namespace TestTask.Controllers
         IGameRepository repository;
         public HomeController(IGameRepository repo) => repository = repo;
 
-        public IActionResult Index()
+        public IActionResult Index(int genreId=0)
         {
-            return View(
-                repository
-                .Games
-                .Include(s => s.Studio)
-                );
+            GameListViewModel viewModel = new GameListViewModel(repository, genreId);
+            return View(viewModel);
         }
 
         [HttpGet]
         public ViewResult Details(int Id)
         {
-            var viewModel = new Models.ViewModels.GameDetailsViewModel(repository,Id);
+            var viewModel = new GameDetailsViewModel(repository,Id);
 
             return View(viewModel);
         }
@@ -47,7 +45,7 @@ namespace TestTask.Controllers
         [HttpGet]
         public ViewResult Create()
         {
-            var viewModel = new Models.ViewModels.GameStudioViewModel(repository);
+            var viewModel = new GameStudioViewModel(repository);
             return View(viewModel);
         }
 
@@ -65,7 +63,7 @@ namespace TestTask.Controllers
             else
             {
                 ///Прописать корректную передачу при ошибке валиации
-                var viewModel = new Models.ViewModels.GameStudioViewModel(repository, GenreIds);
+                var viewModel = new GameStudioViewModel(repository, GenreIds);
                 return View(viewModel);
             }
         }
@@ -73,7 +71,7 @@ namespace TestTask.Controllers
         [HttpGet]
         public ViewResult Edit(int Id)
         {
-            var viewModel = new Models.ViewModels.GameStudioViewModel(Id, repository);
+            var viewModel = new GameStudioViewModel(Id, repository);
             
             return View(viewModel);
         }
