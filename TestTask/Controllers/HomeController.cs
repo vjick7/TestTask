@@ -37,6 +37,14 @@ namespace TestTask.Controllers
         }
 
         [HttpGet]
+        public ViewResult Details(int Id)
+        {
+            var viewModel = new Models.ViewModels.GameDetailsViewModel(repository,Id);
+
+            return View(viewModel);
+        }
+
+        [HttpGet]
         public ViewResult Create()
         {
             var viewModel = new Models.ViewModels.GameStudioViewModel(repository);
@@ -57,7 +65,7 @@ namespace TestTask.Controllers
             else
             {
                 ///Прописать корректную передачу при ошибке валиации
-                var viewModel = new Models.ViewModels.GameStudioViewModel(repository);
+                var viewModel = new Models.ViewModels.GameStudioViewModel(repository, GenreIds);
                 return View(viewModel);
             }
         }
@@ -83,7 +91,7 @@ namespace TestTask.Controllers
             else
             {
                 ///Прописать корректную передачу при ошибке валиации
-                var viewModel = new Models.ViewModels.GameStudioViewModel(game.Id, repository);
+                var viewModel = new Models.ViewModels.GameStudioViewModel(game.Id, repository,GenreIds);
                 return View(viewModel);
             }
         }

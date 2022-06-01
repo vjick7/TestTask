@@ -14,58 +14,50 @@ namespace TestTask.Models.ViewModels
         public SelectList StudioSelectList { get; set; }
         public List<CheckBoxModel> CheckBoxList { get; set; }
 
-        public GameStudioViewModel(IGameRepository repository)
+        public GameStudioViewModel(IGameRepository repository, int[] genreIds = null)
         {
             Game = new Game();
             StudioSelectList = new SelectList(repository.Studios, "Id", "Title");
-            CheckBoxList = repository.Genres.Select(x => new CheckBoxModel { Id = x.Id, Name = x.Title, Checked = false }).ToList();
-        }
-
-        public GameStudioViewModel(int gameID, IGameRepository repository)
-        {
-            Game = repository.Games.FirstOrDefault(x => x.Id == gameID);
-            StudioSelectList = new SelectList(repository.Studios, "Id", "Title",Game.StudioID);
-            //var a1 = repository
-            //        .Genres
-            //        .Where(g => g.Games.Where(p => p.GameId == gameID && p.GenreId == 2).Any())
-            //        .ToList();
-
-            //            var a2 = repository
-            //                    .Genres
-            //                    .Where(g => g.Games.All(tag => tag.GameId == gameID && tag.GenreId == 2)).ToList();
-            //            var a3 = repository
-            //                    .Genres
-            //                    .Where(g => g.Games.All(tag => tag.GameId == gameID && tag.GenreId == 3)).ToList();
-            //var a4 = repository
-            //        .Genres
-            //        .FromSql(new RawSqlString($@"select Genres.* from GameGenres
-            //inner join Genres on GameGenres.GenreId = Genres.Id
-            //where gameId = {gameID} and GenreId = 2"))
-                    //.ToList();
-            CheckBoxList = repository
-                .Genres
-                .Select(x => new CheckBoxModel
+            CheckBoxList = genreIds is null?
+                repository.Genres.Select(x => new CheckBoxModel { Id = x.Id, Name = x.Title, Checked = false }).ToList():
+                repository.Genres.Select(x => new CheckBoxModel
                 {
                     Id = x.Id,
                     Name = x.Title,
-                    Checked = repository
-                    .Genres
-                    .Where(g => g.Games.Where(p => p.GameId == gameID && p.GenreId == x.Id).Any())
-                    .Count() == 0 ? false:true
+                    Checked = genreIds.Contains(x.Id) ? true : false
                 }).ToList();
 
         }
 
-        private void SetChecked(CheckBoxModel check, int[] ids)
+        public GameStudioViewModel(int gameID, IGameRepository repository, int[] genreIds = null)
         {
-            foreach (int id in ids)
+            Game = repository.Games.FirstOrDefault(x => x.Id == gameID);
+            StudioSelectList = new SelectList(repository.Studios, "Id", "Title",Game.StudioID);
+
+            if (genreIds is null)
             {
-                if (check.Id == id)
-                {
-                    check.Checked = true;
-                    break;
-                }
+                CheckBoxList = repository
+                    .Genres
+                    .Select(x => new CheckBoxModel
+                    {
+                        Id = x.Id,
+                        Name = x.Title,
+                        Checked = repository
+                        .Genres
+                        .Where(g => g.Games.Where(p => p.GameId == gameID && p.GenreId == x.Id).Any())
+                        .Count() == 0 ? false : true
+                    }).ToList();
             }
+            else
+            {
+                CheckBoxList = repository.Genres.Select(x => new CheckBoxModel
+                {
+                    Id = x.Id,
+                    Name = x.Title,
+                    Checked = genreIds.Contains(x.Id) ? true : false
+                }).ToList();
+            }
+
         }
     }
 

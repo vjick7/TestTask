@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TestTask.Models;
+using TestTask.Models.ViewModels;
 
 namespace TestTask.Infrastructure
 {
@@ -25,5 +26,7 @@ namespace TestTask.Infrastructure
 
             modelBuilder.Entity<GameGenres>().HasKey(i => new { i.GameId, i.GenreId });
         }
+
+        public DbSet<TestTask.Models.ViewModels.CheckBoxModel> CheckBoxModel { get; set; }
     }
 }
