@@ -14,7 +14,7 @@ namespace TestTask.Models
         public string Title { get; set; }
         public int StudioID { get; set; }
         public Studio Studio { get; set; }
-        public IQueryable<GameGenres> Genres { get; set; }
+        public ICollection<GameGenres> Genres { get; set; }
 
         
 

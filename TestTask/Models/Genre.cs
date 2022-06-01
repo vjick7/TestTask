@@ -10,6 +10,6 @@ namespace TestTask.Models
         public int Id { get; set; }
         public string Title { get; set; }
 
-        public IQueryable<GameGenres> Games { get; set; } 
+        public ICollection<GameGenres> Games { get; set; } 
     }
 }

@@ -9,7 +9,7 @@ namespace TestTask.Models.ViewModels
 {
     public class GameListViewModel
     {
-        public IQueryable<Game> Games { get; set; }
+        public IEnumerable<Game> Games { get; set; }
         public int SelectedGenreId { get; set; }
 
         public GameListViewModel(IGameRepository repository, int genreId)

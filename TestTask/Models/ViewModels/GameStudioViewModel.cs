@@ -12,20 +12,20 @@ namespace TestTask.Models.ViewModels
     {
         public Game Game { get; set; }
         public SelectList StudioSelectList { get; set; }
-        public List<CheckBoxModel> CheckBoxList { get; set; }
+        public IEnumerable<CheckBoxModel> CheckBoxList { get; set; }
 
         public GameStudioViewModel(IGameRepository repository, int[] genreIds = null)
         {
             Game = new Game();
             StudioSelectList = new SelectList(repository.Studios, "Id", "Title");
             CheckBoxList = genreIds is null?
-                repository.Genres.Select(x => new CheckBoxModel { Id = x.Id, Name = x.Title, Checked = false }).ToList():
+                repository.Genres.Select(x => new CheckBoxModel { Id = x.Id, Name = x.Title, Checked = false }):
                 repository.Genres.Select(x => new CheckBoxModel
                 {
                     Id = x.Id,
                     Name = x.Title,
                     Checked = genreIds.Contains(x.Id) ? true : false
-                }).ToList();
+                });
 
         }
 
@@ -46,7 +46,7 @@ namespace TestTask.Models.ViewModels
                         .Genres
                         .Where(g => g.Games.Where(p => p.GameId == gameID && p.GenreId == x.Id).Any())
                         .Count() == 0 ? false : true
-                    }).ToList();
+                    });
             }
             else
             {
@@ -55,7 +55,7 @@ namespace TestTask.Models.ViewModels
                     Id = x.Id,
                     Name = x.Title,
                     Checked = genreIds.Contains(x.Id) ? true : false
-                }).ToList();
+                });
             }
 
         }
